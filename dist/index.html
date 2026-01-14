@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Focus Writer - wbtl.app</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%239b7bd4'/><stop offset='100%25' stop-color='%238a6ac3'/></linearGradient></defs><rect width='32' height='32' rx='6' fill='url(%23g)'/><g transform='translate(4,4)' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none'><path d='M12 19l7-7 3 3-7 7-3-3z'/><path d='M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z'/><path d='M2 2l7.586 7.586'/><circle cx='11' cy='11' r='2'/></g></svg>">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --bg-secondary: #f5f5f7;
+      --text: #1d1d1f;
+      --text-secondary: #6e6e73;
+      --text-dim: #c0c0c0;
+      --accent: #9b7bd4;
+      --accent-hover: #8a6ac3;
+      --border: #d2d2d7;
+      --toggle-bg: #e5e5e5;
+      --toggle-knob: #ffffff;
+      --tool-gradient-start: #9b7bd4;
+      --tool-gradient-end: #8a6ac3;
+      --panel-bg: #ffffff;
+      --panel-shadow: rgba(0,0,0,0.1);
+      --editor-bg: #ffffff;
+    }
+
+    [data-theme="dark"] {
+      --bg: #1a1a1a;
+      --bg-secondary: #1c1c1e;
+      --text: #e0e0e0;
+      --text-secondary: #98989d;
+      --text-dim: #4a4a4a;
+      --accent: #9b7bd4;
+      --accent-hover: #b08ee6;
+      --border: #38383a;
+      --toggle-bg: #3a3a3c;
+      --toggle-knob: #ffffff;
+      --panel-bg: #252525;
+      --panel-shadow: rgba(0,0,0,0.3);
+      --editor-bg: #1a1a1a;
+    }
+
+    [data-theme="sepia"] {
+      --bg: #f5f0e6;
+      --bg-secondary: #ebe4d6;
+      --text: #5c4b37;
+      --text-secondary: #7a6952;
+      --text-dim: #c4b8a5;
+      --accent: #8b6914;
+      --accent-hover: #a47d1c;
+      --border: #d4c9b8;
+      --toggle-bg: #d4c9b8;
+      --toggle-knob: #ffffff;
+      --panel-bg: #f5f0e6;
+      --panel-shadow: rgba(92,75,55,0.1);
+      --editor-bg: #f5f0e6;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    body.fullscreen header,
+    body.fullscreen .footer {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    body.fullscreen:hover header,
+    body.fullscreen:hover .footer {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1.5rem;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      transition: opacity 0.3s ease;
+      z-index: 100;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .tool-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--tool-gradient-start), var(--tool-gradient-end));
+      cursor: pointer;
+    }
+
+    .tool-icon svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .tool-name {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .header-center {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+    }
+
+    .doc-title {
+      background: transparent;
+      border: none;
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text);
+      text-align: center;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      max-width: 300px;
+      width: 100%;
+    }
+
+    .doc-title:hover {
+      background: var(--bg);
+    }
+
+    .doc-title:focus {
+      outline: none;
+      background: var(--bg);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .header-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .header-btn:hover {
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .header-btn.active {
+      color: var(--accent);
+    }
+
+    .header-btn svg {
+      width: 20px;
+      height: 20px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .save-indicator {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .save-indicator.visible {
+      opacity: 1;
+    }
+
+    .back-link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: color 0.2s ease;
+    }
+
+    .back-link:hover {
+      color: var(--accent);
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .editor-container {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      overflow-y: auto;
+      padding: 2rem 1rem;
+    }
+
+    .editor-wrapper {
+      width: 100%;
+      max-width: var(--line-width, 700px);
+      transition: max-width 0.3s ease;
+    }
+
+    #editor {
+      width: 100%;
+      min-height: calc(100vh - 200px);
+      border: none;
+      background: transparent;
+      color: var(--text);
+      font-family: var(--editor-font, 'Georgia, serif');
+      font-size: var(--font-size, 18px);
+      line-height: var(--line-height, 1.8);
+      resize: none;
+      outline: none;
+      padding: 0;
+    }
+
+    #editor::placeholder {
+      color: var(--text-dim);
+    }
+
+    .editor-container.typewriter-mode {
+      padding-top: 45vh;
+      padding-bottom: 45vh;
+    }
+
+    .editor-container.focus-mode #editor {
+      color: var(--text-dim);
+    }
+
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 1.5rem;
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border);
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      transition: opacity 0.3s ease;
+    }
+
+    .footer.hidden {
+      display: none;
+    }
+
+    .word-count {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .session-stats {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .goal-progress {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .goal-bar {
+      width: 60px;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .goal-fill {
+      height: 100%;
+      background: var(--accent);
+      transition: width 0.3s ease;
+    }
+
+    /* Panels */
+    .panel-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.3);
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+      z-index: 200;
+    }
+
+    .panel-overlay.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .panel {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      width: 320px;
+      background: var(--panel-bg);
+      box-shadow: 0 0 20px var(--panel-shadow);
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+      z-index: 300;
+      overflow-y: auto;
+    }
+
+    .panel.right {
+      right: 0;
+      left: auto;
+      transform: translateX(100%);
+    }
+
+    .panel.visible {
+      transform: translateX(0);
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: var(--panel-bg);
+    }
+
+    .panel-title {
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    .panel-close {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      padding: 0.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .panel-close:hover {
+      color: var(--text);
+    }
+
+    .panel-close svg {
+      width: 20px;
+      height: 20px;
+      stroke: currentColor;
+      stroke-width: 2;
+    }
+
+    .panel-content {
+      padding: 1rem 1.25rem;
+    }
+
+    /* Documents Panel */
+    .new-doc-btn {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: linear-gradient(135deg, var(--tool-gradient-start), var(--tool-gradient-end));
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .new-doc-btn:hover {
+      opacity: 0.9;
+    }
+
+    .new-doc-btn svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      stroke-width: 2;
+    }
+
+    .doc-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .doc-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem;
+      background: var(--bg);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .doc-item:hover {
+      background: var(--bg-secondary);
+    }
+
+    .doc-item.active {
+      background: var(--accent);
+      color: white;
+    }
+
+    .doc-item.active .doc-meta {
+      color: rgba(255,255,255,0.8);
+    }
+
+    .doc-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .doc-item-title {
+      font-weight: 500;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .doc-meta {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-top: 0.125rem;
+    }
+
+    .doc-delete {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      padding: 0.25rem;
+      opacity: 0;
+      transition: all 0.2s ease;
+    }
+
+    .doc-item:hover .doc-delete {
+      opacity: 1;
+    }
+
+    .doc-item.active .doc-delete {
+      color: rgba(255,255,255,0.8);
+    }
+
+    .doc-delete:hover {
+      color: #ff4444;
+    }
+
+    .doc-delete svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      stroke-width: 2;
+    }
+
+    /* Settings Panel */
+    .setting-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .setting-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.5rem;
+    }
+
+    .theme-options {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .theme-btn {
+      flex: 1;
+      padding: 0.5rem;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      background: transparent;
+      cursor: pointer;
+      font-size: 0.85rem;
+      color: var(--text);
+      transition: all 0.2s ease;
+    }
+
+    .theme-btn:hover {
+      border-color: var(--accent);
+    }
+
+    .theme-btn.active {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: white;
+    }
+
+    .font-options {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .font-btn {
+      padding: 0.5rem 0.75rem;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      background: transparent;
+      cursor: pointer;
+      text-align: left;
+      color: var(--text);
+      transition: all 0.2s ease;
+    }
+
+    .font-btn:hover {
+      border-color: var(--accent);
+    }
+
+    .font-btn.active {
+      border-color: var(--accent);
+    }
+
+    .slider-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .slider {
+      flex: 1;
+      -webkit-appearance: none;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      outline: none;
+    }
+
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      background: var(--accent);
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    .slider-value {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      min-width: 40px;
+      text-align: right;
+    }
+
+    .toggle-group {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 0;
+    }
+
+    .toggle-label {
+      font-size: 0.9rem;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      background: var(--toggle-bg);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .toggle-switch.active {
+      background: var(--accent);
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 20px;
+      height: 20px;
+      background: var(--toggle-knob);
+      border-radius: 50%;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+      transition: transform 0.2s ease;
+    }
+
+    .toggle-switch.active::after {
+      transform: translateX(20px);
+    }
+
+    .goal-input-group {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .goal-input {
+      flex: 1;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 0.9rem;
+    }
+
+    .goal-input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    /* Export Buttons */
+    .export-buttons {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .export-btn {
+      flex: 1;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: transparent;
+      color: var(--text);
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .export-btn:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    /* Keyboard shortcuts */
+    .shortcuts-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .shortcut-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+    }
+
+    .shortcut-keys {
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    .shortcut-key {
+      padding: 0.125rem 0.5rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-family: monospace;
+    }
+
+    /* Mobile */
+    @media (max-width: 640px) {
+      header {
+        padding: 0.5rem 1rem;
+      }
+
+      .tool-name {
+        display: none;
+      }
+
+      .doc-title {
+        font-size: 0.9rem;
+        max-width: 150px;
+      }
+
+      .panel {
+        width: 100%;
+      }
+
+      .footer {
+        flex-direction: column;
+        gap: 0.25rem;
+        padding: 0.5rem 1rem;
+      }
+    }
+
+    /* Fullscreen */
+    body.fullscreen {
+      cursor: none;
+    }
+
+    body.fullscreen:hover {
+      cursor: auto;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-left">
+      <div class="tool-icon" onclick="toggleDocsPanel()" title="Documents">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 19l7-7 3 3-7 7-3-3z"/>
+          <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/>
+          <path d="M2 2l7.586 7.586"/>
+          <circle cx="11" cy="11" r="2"/>
+        </svg>
+      </div>
+      <div class="tool-name">Focus Writer</div>
+    </div>
+    <div class="header-center">
+      <input type="text" class="doc-title" id="docTitle" value="Untitled" placeholder="Document title">
+    </div>
+    <div class="header-right">
+      <span class="save-indicator" id="saveIndicator">Saved</span>
+      <button class="header-btn" id="focusModeBtn" onclick="toggleFocusMode()" title="Focus mode (Ctrl+Shift+F)">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      </button>
+      <button class="header-btn" id="typewriterBtn" onclick="toggleTypewriterMode()" title="Typewriter mode (Ctrl+Shift+T)">
+        <svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+      </button>
+      <button class="header-btn" onclick="toggleFullscreen()" title="Fullscreen (F11)">
+        <svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
+      </button>
+      <button class="header-btn" onclick="toggleSettingsPanel()" title="Settings">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+      <a href="https://wbtl.app" class="back-link">wbtl.app</a>
+    </div>
+  </header>
+
+  <main>
+    <div class="editor-container" id="editorContainer">
+      <div class="editor-wrapper">
+        <textarea id="editor" placeholder="Start writing..."></textarea>
+      </div>
+    </div>
+  </main>
+
+  <div class="footer" id="footer">
+    <div class="word-count" id="wordCount">
+      <span id="words">0 words</span>
+      <span id="chars">0 characters</span>
+    </div>
+    <div class="session-stats">
+      <span id="sessionWords">Session: 0 words</span>
+      <div class="goal-progress" id="goalProgress" style="display: none;">
+        <span>Goal:</span>
+        <div class="goal-bar">
+          <div class="goal-fill" id="goalFill" style="width: 0%"></div>
+        </div>
+        <span id="goalText">0%</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Documents Panel -->
+  <div class="panel-overlay" id="panelOverlay" onclick="closePanels()"></div>
+
+  <div class="panel" id="docsPanel">
+    <div class="panel-header">
+      <span class="panel-title">Documents</span>
+      <button class="panel-close" onclick="toggleDocsPanel()">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="panel-content">
+      <button class="new-doc-btn" onclick="createNewDocument()">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14"/></svg>
+        New Document
+      </button>
+      <div class="doc-list" id="docList"></div>
+    </div>
+  </div>
+
+  <!-- Settings Panel -->
+  <div class="panel right" id="settingsPanel">
+    <div class="panel-header">
+      <span class="panel-title">Settings</span>
+      <button class="panel-close" onclick="toggleSettingsPanel()">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="panel-content">
+      <div class="setting-group">
+        <div class="setting-label">Theme</div>
+        <div class="theme-options">
+          <button class="theme-btn" data-theme="light" onclick="setTheme('light')">Light</button>
+          <button class="theme-btn" data-theme="dark" onclick="setTheme('dark')">Dark</button>
+          <button class="theme-btn" data-theme="sepia" onclick="setTheme('sepia')">Sepia</button>
+        </div>
+      </div>
+
+      <div class="setting-group">
+        <div class="setting-label">Font</div>
+        <div class="font-options">
+          <button class="font-btn" data-font="Georgia, serif" onclick="setFont(this)" style="font-family: Georgia, serif;">Georgia</button>
+          <button class="font-btn" data-font="'Palatino Linotype', 'Book Antiqua', Palatino, serif" onclick="setFont(this)" style="font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;">Palatino</button>
+          <button class="font-btn" data-font="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" onclick="setFont(this)" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">System</button>
+          <button class="font-btn" data-font="'Courier New', Courier, monospace" onclick="setFont(this)" style="font-family: 'Courier New', Courier, monospace;">Monospace</button>
+        </div>
+      </div>
+
+      <div class="setting-group">
+        <div class="setting-label">Font Size</div>
+        <div class="slider-group">
+          <input type="range" class="slider" id="fontSizeSlider" min="14" max="28" value="18" onchange="setFontSize(this.value)">
+          <span class="slider-value" id="fontSizeValue">18px</span>
+        </div>
+      </div>
+
+      <div class="setting-group">
+        <div class="setting-label">Line Width</div>
+        <div class="slider-group">
+          <input type="range" class="slider" id="lineWidthSlider" min="500" max="900" value="700" step="50" onchange="setLineWidth(this.value)">
+          <span class="slider-value" id="lineWidthValue">700px</span>
+        </div>
+      </div>
+
+      <div class="setting-group">
+        <div class="setting-label">Line Height</div>
+        <div class="slider-group">
+          <input type="range" class="slider" id="lineHeightSlider" min="1.4" max="2.4" value="1.8" step="0.1" onchange="setLineHeight(this.value)">
+          <span class="slider-value" id="lineHeightValue">1.8</span>
+        </div>
+      </div>
+
+      <div class="setting-group">
+        <div class="setting-label">Writing Modes</div>
+        <div class="toggle-group">
+          <span class="toggle-label">Focus mode</span>
+          <div class="toggle-switch" id="focusModeToggle" onclick="toggleFocusMode()"></div>
+        </div>
+        <div class="toggle-group">
+          <span class="toggle-label">Typewriter mode</span>
+          <div class="toggle-switch" id="typewriterToggle" onclick="toggleTypewriterMode()"></div>
+        </div>
+        <div class="toggle-group">
+          <span class="toggle-label">Show word count</span>
+          <div class="toggle-switch active" id="wordCountToggle" onclick="toggleWordCount()"></div>
+        </div>
+      </div>
+
+      <div class="setting-group">
+        <div class="setting-label">Session Goal (words)</div>
+        <div class="goal-input-group">
+          <input type="number" class="goal-input" id="goalInput" placeholder="e.g. 500" min="0">
+          <button class="export-btn" onclick="setGoal()">Set</button>
+        </div>
+      </div>
+
+      <div class="setting-group">
+        <div class="setting-label">Export</div>
+        <div class="export-buttons">
+          <button class="export-btn" onclick="exportDocument('txt')">Download .txt</button>
+          <button class="export-btn" onclick="exportDocument('md')">Download .md</button>
+        </div>
+      </div>
+
+      <div class="setting-group">
+        <div class="setting-label">Keyboard Shortcuts</div>
+        <div class="shortcuts-list">
+          <div class="shortcut-item">
+            <span>Save</span>
+            <div class="shortcut-keys"><span class="shortcut-key">Ctrl</span><span class="shortcut-key">S</span></div>
+          </div>
+          <div class="shortcut-item">
+            <span>New document</span>
+            <div class="shortcut-keys"><span class="shortcut-key">Ctrl</span><span class="shortcut-key">N</span></div>
+          </div>
+          <div class="shortcut-item">
+            <span>Fullscreen</span>
+            <div class="shortcut-keys"><span class="shortcut-key">F11</span></div>
+          </div>
+          <div class="shortcut-item">
+            <span>Focus mode</span>
+            <div class="shortcut-keys"><span class="shortcut-key">Ctrl</span><span class="shortcut-key">Shift</span><span class="shortcut-key">F</span></div>
+          </div>
+          <div class="shortcut-item">
+            <span>Typewriter mode</span>
+            <div class="shortcut-keys"><span class="shortcut-key">Ctrl</span><span class="shortcut-key">Shift</span><span class="shortcut-key">T</span></div>
+          </div>
+          <div class="shortcut-item">
+            <span>Close panels</span>
+            <div class="shortcut-keys"><span class="shortcut-key">Esc</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Document Manager
+    class DocumentManager {
+      constructor() {
+        this.documents = this.load();
+        this.currentId = localStorage.getItem('focuswriter-current');
+        if (!this.currentId || !this.documents.find(d => d.id === this.currentId)) {
+          if (this.documents.length === 0) {
+            this.create('Untitled');
+          } else {
+            this.currentId = this.documents[0].id;
+            this.save();
+          }
+        }
+      }
+
+      load() {
+        const saved = localStorage.getItem('focuswriter-docs');
+        return saved ? JSON.parse(saved) : [];
+      }
+
+      save() {
+        localStorage.setItem('focuswriter-docs', JSON.stringify(this.documents));
+        localStorage.setItem('focuswriter-current', this.currentId);
+      }
+
+      create(title = 'Untitled') {
+        const doc = {
+          id: Date.now().toString(),
+          title,
+          content: '',
+          created: new Date().toISOString(),
+          modified: new Date().toISOString()
+        };
+        this.documents.unshift(doc);
+        this.currentId = doc.id;
+        this.save();
+        return doc;
+      }
+
+      update(id, content) {
+        const doc = this.documents.find(d => d.id === id);
+        if (doc) {
+          doc.content = content;
+          doc.modified = new Date().toISOString();
+          this.save();
+        }
+      }
+
+      updateTitle(id, title) {
+        const doc = this.documents.find(d => d.id === id);
+        if (doc) {
+          doc.title = title;
+          doc.modified = new Date().toISOString();
+          this.save();
+        }
+      }
+
+      delete(id) {
+        if (this.documents.length === 1) {
+          alert('Cannot delete the last document');
+          return false;
+        }
+        this.documents = this.documents.filter(d => d.id !== id);
+        if (this.currentId === id) {
+          this.currentId = this.documents[0]?.id || null;
+        }
+        this.save();
+        return true;
+      }
+
+      getCurrent() {
+        return this.documents.find(d => d.id === this.currentId);
+      }
+
+      setCurrent(id) {
+        this.currentId = id;
+        this.save();
+      }
+    }
+
+    // Settings Manager
+    class SettingsManager {
+      constructor() {
+        this.defaults = {
+          theme: 'light',
+          font: 'Georgia, serif',
+          fontSize: 18,
+          lineWidth: 700,
+          lineHeight: 1.8,
+          focusMode: false,
+          typewriterMode: false,
+          showWordCount: true,
+          goal: 0
+        };
+        this.settings = this.load();
+      }
+
+      load() {
+        const saved = localStorage.getItem('focuswriter-settings');
+        return saved ? { ...this.defaults, ...JSON.parse(saved) } : { ...this.defaults };
+      }
+
+      save() {
+        localStorage.setItem('focuswriter-settings', JSON.stringify(this.settings));
+      }
+
+      get(key) {
+        return this.settings[key];
+      }
+
+      set(key, value) {
+        this.settings[key] = value;
+        this.save();
+      }
+    }
+
+    // Initialize
+    const docManager = new DocumentManager();
+    const settings = new SettingsManager();
+    let sessionStartWordCount = 0;
+    let currentWordCount = 0;
+
+    const editor = document.getElementById('editor');
+    const docTitle = document.getElementById('docTitle');
+    const saveIndicator = document.getElementById('saveIndicator');
+    const editorContainer = document.getElementById('editorContainer');
+
+    // Debounce
+    function debounce(fn, delay) {
+      let timeout;
+      return (...args) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => fn(...args), delay);
+      };
+    }
+
+    // Auto-save
+    const autoSave = debounce((content) => {
+      docManager.update(docManager.currentId, content);
+      showSaveIndicator();
+    }, 1000);
+
+    function showSaveIndicator() {
+      saveIndicator.classList.add('visible');
+      setTimeout(() => saveIndicator.classList.remove('visible'), 2000);
+    }
+
+    // Word count
+    function countWords(text) {
+      return text.trim() ? text.trim().split(/\s+/).length : 0;
+    }
+
+    function updateWordCount() {
+      const text = editor.value;
+      const words = countWords(text);
+      const chars = text.length;
+      currentWordCount = words;
+
+      document.getElementById('words').textContent = `${words} word${words !== 1 ? 's' : ''}`;
+      document.getElementById('chars').textContent = `${chars} character${chars !== 1 ? 's' : ''}`;
+
+      const sessionWords = words - sessionStartWordCount;
+      document.getElementById('sessionWords').textContent = `Session: ${sessionWords >= 0 ? '+' : ''}${sessionWords} words`;
+
+      const goal = settings.get('goal');
+      if (goal > 0) {
+        const progress = Math.min(100, Math.round((sessionWords / goal) * 100));
+        document.getElementById('goalFill').style.width = `${progress}%`;
+        document.getElementById('goalText').textContent = `${progress}%`;
+        document.getElementById('goalProgress').style.display = 'flex';
+      } else {
+        document.getElementById('goalProgress').style.display = 'none';
+      }
+    }
+
+    // Editor events
+    editor.addEventListener('input', () => {
+      autoSave(editor.value);
+      updateWordCount();
+    });
+
+    editor.addEventListener('keyup', () => {
+      if (settings.get('typewriterMode')) {
+        scrollToCurrentLine();
+      }
+    });
+
+    editor.addEventListener('click', () => {
+      if (settings.get('typewriterMode')) {
+        scrollToCurrentLine();
+      }
+    });
+
+    docTitle.addEventListener('input', debounce(() => {
+      docManager.updateTitle(docManager.currentId, docTitle.value);
+      renderDocList();
+    }, 500));
+
+    // Typewriter mode
+    function scrollToCurrentLine() {
+      const lineHeight = parseInt(getComputedStyle(editor).lineHeight);
+      const cursorLine = editor.value.substr(0, editor.selectionStart).split('\n').length;
+      const containerHeight = editorContainer.clientHeight;
+      const targetScroll = (cursorLine * lineHeight) - (containerHeight / 2);
+      editorContainer.scrollTo({
+        top: Math.max(0, targetScroll),
+        behavior: 'smooth'
+      });
+    }
+
+    // Panel controls
+    function toggleDocsPanel() {
+      const panel = document.getElementById('docsPanel');
+      const overlay = document.getElementById('panelOverlay');
+      const isVisible = panel.classList.contains('visible');
+
+      closePanels();
+      if (!isVisible) {
+        panel.classList.add('visible');
+        overlay.classList.add('visible');
+      }
+    }
+
+    function toggleSettingsPanel() {
+      const panel = document.getElementById('settingsPanel');
+      const overlay = document.getElementById('panelOverlay');
+      const isVisible = panel.classList.contains('visible');
+
+      closePanels();
+      if (!isVisible) {
+        panel.classList.add('visible');
+        overlay.classList.add('visible');
+      }
+    }
+
+    function closePanels() {
+      document.getElementById('docsPanel').classList.remove('visible');
+      document.getElementById('settingsPanel').classList.remove('visible');
+      document.getElementById('panelOverlay').classList.remove('visible');
+    }
+
+    // Document management
+    function createNewDocument() {
+      const doc = docManager.create('Untitled');
+      loadDocument(doc.id);
+      renderDocList();
+      closePanels();
+    }
+
+    function loadDocument(id) {
+      docManager.setCurrent(id);
+      const doc = docManager.getCurrent();
+      if (doc) {
+        editor.value = doc.content;
+        docTitle.value = doc.title;
+        sessionStartWordCount = countWords(doc.content);
+        updateWordCount();
+        renderDocList();
+      }
+    }
+
+    function deleteDocument(id, event) {
+      event.stopPropagation();
+      if (confirm('Delete this document?')) {
+        if (docManager.delete(id)) {
+          loadDocument(docManager.currentId);
+          renderDocList();
+        }
+      }
+    }
+
+    function renderDocList() {
+      const list = document.getElementById('docList');
+      list.innerHTML = docManager.documents.map(doc => {
+        const date = new Date(doc.modified);
+        const dateStr = date.toLocaleDateString();
+        const words = countWords(doc.content);
+        return `
+          <div class="doc-item ${doc.id === docManager.currentId ? 'active' : ''}" onclick="loadDocument('${doc.id}')">
+            <div class="doc-info">
+              <div class="doc-item-title">${doc.title || 'Untitled'}</div>
+              <div class="doc-meta">${dateStr} · ${words} words</div>
+            </div>
+            <button class="doc-delete" onclick="deleteDocument('${doc.id}', event)" title="Delete">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Theme
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      settings.set('theme', theme);
+      updateThemeButtons();
+    }
+
+    function updateThemeButtons() {
+      const theme = settings.get('theme');
+      document.querySelectorAll('.theme-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.theme === theme);
+      });
+    }
+
+    // Font
+    function setFont(btn) {
+      const font = btn.dataset.font;
+      document.documentElement.style.setProperty('--editor-font', font);
+      settings.set('font', font);
+      document.querySelectorAll('.font-btn').forEach(b => {
+        b.classList.toggle('active', b === btn);
+      });
+    }
+
+    function setFontSize(size) {
+      document.documentElement.style.setProperty('--font-size', size + 'px');
+      settings.set('fontSize', parseInt(size));
+      document.getElementById('fontSizeValue').textContent = size + 'px';
+    }
+
+    function setLineWidth(width) {
+      document.documentElement.style.setProperty('--line-width', width + 'px');
+      settings.set('lineWidth', parseInt(width));
+      document.getElementById('lineWidthValue').textContent = width + 'px';
+    }
+
+    function setLineHeight(height) {
+      document.documentElement.style.setProperty('--line-height', height);
+      settings.set('lineHeight', parseFloat(height));
+      document.getElementById('lineHeightValue').textContent = height;
+    }
+
+    // Modes
+    function toggleFocusMode() {
+      const enabled = !settings.get('focusMode');
+      settings.set('focusMode', enabled);
+      editorContainer.classList.toggle('focus-mode', enabled);
+      document.getElementById('focusModeBtn').classList.toggle('active', enabled);
+      document.getElementById('focusModeToggle').classList.toggle('active', enabled);
+    }
+
+    function toggleTypewriterMode() {
+      const enabled = !settings.get('typewriterMode');
+      settings.set('typewriterMode', enabled);
+      editorContainer.classList.toggle('typewriter-mode', enabled);
+      document.getElementById('typewriterBtn').classList.toggle('active', enabled);
+      document.getElementById('typewriterToggle').classList.toggle('active', enabled);
+      if (enabled) {
+        scrollToCurrentLine();
+      }
+    }
+
+    function toggleWordCount() {
+      const enabled = !settings.get('showWordCount');
+      settings.set('showWordCount', enabled);
+      document.getElementById('footer').classList.toggle('hidden', !enabled);
+      document.getElementById('wordCountToggle').classList.toggle('active', enabled);
+    }
+
+    function setGoal() {
+      const goalInput = document.getElementById('goalInput');
+      const goal = parseInt(goalInput.value) || 0;
+      settings.set('goal', goal);
+      updateWordCount();
+    }
+
+    // Fullscreen
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+        document.body.classList.add('fullscreen');
+      } else {
+        document.exitFullscreen();
+        document.body.classList.remove('fullscreen');
+      }
+    }
+
+    document.addEventListener('fullscreenchange', () => {
+      if (!document.fullscreenElement) {
+        document.body.classList.remove('fullscreen');
+      }
+    });
+
+    // Export
+    function exportDocument(format) {
+      const doc = docManager.getCurrent();
+      if (!doc) return;
+
+      const content = doc.content;
+      const filename = `${doc.title || 'untitled'}.${format}`;
+      const mimeType = format === 'md' ? 'text/markdown' : 'text/plain';
+
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+      const modKey = isMac ? e.metaKey : e.ctrlKey;
+
+      if (modKey && e.key === 's') {
+        e.preventDefault();
+        docManager.update(docManager.currentId, editor.value);
+        showSaveIndicator();
+      }
+
+      if (modKey && e.key === 'n') {
+        e.preventDefault();
+        createNewDocument();
+      }
+
+      if (e.key === 'F11' || (modKey && e.key === 'Enter')) {
+        e.preventDefault();
+        toggleFullscreen();
+      }
+
+      if (modKey && e.shiftKey && e.key === 'F') {
+        e.preventDefault();
+        toggleFocusMode();
+      }
+
+      if (modKey && e.shiftKey && e.key === 'T') {
+        e.preventDefault();
+        toggleTypewriterMode();
+      }
+
+      if (e.key === 'Escape') {
+        closePanels();
+        if (document.fullscreenElement) {
+          document.exitFullscreen();
+        }
+      }
+    });
+
+    // Apply saved settings
+    function applySettings() {
+      // Theme
+      setTheme(settings.get('theme'));
+
+      // Font
+      const font = settings.get('font');
+      document.documentElement.style.setProperty('--editor-font', font);
+      document.querySelectorAll('.font-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.font === font);
+      });
+
+      // Font size
+      const fontSize = settings.get('fontSize');
+      document.documentElement.style.setProperty('--font-size', fontSize + 'px');
+      document.getElementById('fontSizeSlider').value = fontSize;
+      document.getElementById('fontSizeValue').textContent = fontSize + 'px';
+
+      // Line width
+      const lineWidth = settings.get('lineWidth');
+      document.documentElement.style.setProperty('--line-width', lineWidth + 'px');
+      document.getElementById('lineWidthSlider').value = lineWidth;
+      document.getElementById('lineWidthValue').textContent = lineWidth + 'px';
+
+      // Line height
+      const lineHeight = settings.get('lineHeight');
+      document.documentElement.style.setProperty('--line-height', lineHeight);
+      document.getElementById('lineHeightSlider').value = lineHeight;
+      document.getElementById('lineHeightValue').textContent = lineHeight;
+
+      // Modes
+      if (settings.get('focusMode')) {
+        editorContainer.classList.add('focus-mode');
+        document.getElementById('focusModeBtn').classList.add('active');
+        document.getElementById('focusModeToggle').classList.add('active');
+      }
+
+      if (settings.get('typewriterMode')) {
+        editorContainer.classList.add('typewriter-mode');
+        document.getElementById('typewriterBtn').classList.add('active');
+        document.getElementById('typewriterToggle').classList.add('active');
+      }
+
+      if (!settings.get('showWordCount')) {
+        document.getElementById('footer').classList.add('hidden');
+        document.getElementById('wordCountToggle').classList.remove('active');
+      }
+
+      // Goal
+      const goal = settings.get('goal');
+      if (goal > 0) {
+        document.getElementById('goalInput').value = goal;
+      }
+    }
+
+    // Initialize
+    function init() {
+      applySettings();
+      const doc = docManager.getCurrent();
+      if (doc) {
+        editor.value = doc.content;
+        docTitle.value = doc.title;
+        sessionStartWordCount = countWords(doc.content);
+      }
+      updateWordCount();
+      renderDocList();
+      editor.focus();
+    }
+
+    init();
+  </script>
+</body>
+</html>
