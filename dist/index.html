@@ -114,6 +114,7 @@
       border-bottom: 1px solid var(--border);
       transition: opacity 0.3s ease;
       z-index: 100;
+      flex-shrink: 0;
     }
 
     .header-left {
@@ -217,6 +218,7 @@
       background: var(--bg);
       border-bottom: 1px solid var(--border);
       transition: opacity 0.3s ease;
+      flex-shrink: 0;
     }
 
     .options-left {
@@ -307,6 +309,7 @@
       display: flex;
       overflow: hidden;
       position: relative;
+      min-height: 0;
     }
 
     .editor-container {
@@ -321,11 +324,12 @@
       width: 100%;
       max-width: var(--line-width, 700px);
       transition: max-width 0.3s ease;
+      min-height: 300px;
     }
 
     #editor {
       width: 100%;
-      min-height: calc(100vh - 200px);
+      min-height: 100%;
       border: none;
       background: transparent;
       color: var(--text);
@@ -339,11 +343,6 @@
 
     #editor::placeholder {
       color: var(--text-dim);
-    }
-
-    .editor-container.typewriter-mode {
-      padding-top: 45vh;
-      padding-bottom: 45vh;
     }
 
     .editor-container.focus-mode #editor {
@@ -360,6 +359,7 @@
       font-size: 0.8rem;
       color: var(--text-secondary);
       transition: opacity 0.3s ease;
+      flex-shrink: 0;
     }
 
     .footer.hidden {
@@ -513,6 +513,39 @@
       display: flex;
       flex-direction: column;
       gap: 0.5rem;
+      margin-bottom: 1rem;
+      flex: 1;
+    }
+
+    .delete-all-btn {
+      width: 100%;
+      padding: 0.625rem 1rem;
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+    }
+
+    .delete-all-btn:hover {
+      background: #ff4444;
+      border-color: #ff4444;
+      color: white;
+    }
+
+    .delete-all-btn svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      stroke-width: 2;
     }
 
     .doc-item {
@@ -772,6 +805,99 @@
       font-family: monospace;
     }
 
+    /* Confirmation Modal */
+    .confirm-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.2s ease;
+    }
+
+    .confirm-modal.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .confirm-box {
+      background: var(--panel-bg);
+      border-radius: 12px;
+      padding: 1.5rem;
+      max-width: 320px;
+      width: 90%;
+      box-shadow: 0 10px 40px var(--panel-shadow);
+    }
+
+    .confirm-message {
+      font-size: 1rem;
+      margin-bottom: 1.25rem;
+      text-align: center;
+    }
+
+    .confirm-buttons {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .confirm-btn {
+      flex: 1;
+      padding: 0.625rem 1rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .confirm-btn.cancel {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .confirm-btn.cancel:hover {
+      background: var(--border);
+    }
+
+    .confirm-btn.danger {
+      background: #ff4444;
+      border: none;
+      color: white;
+    }
+
+    .confirm-btn.danger:hover {
+      background: #ee3333;
+    }
+
+    .confirm-btn.danger:disabled {
+      background: #999;
+      cursor: not-allowed;
+    }
+
+    .confirm-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+
+    .confirm-checkbox input {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
     /* Mobile */
     @media (max-width: 640px) {
       .tool-name {
@@ -858,9 +984,6 @@
       <button class="options-btn" id="focusModeBtn" onclick="toggleFocusMode()" title="Focus mode (Ctrl+Shift+F)">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
       </button>
-      <button class="options-btn" id="typewriterBtn" onclick="toggleTypewriterMode()" title="Typewriter mode (Ctrl+Shift+T)">
-        <svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
-      </button>
       <button class="options-btn" onclick="toggleFullscreen()" title="Fullscreen (F11)">
         <svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
       </button>
@@ -911,6 +1034,10 @@
         New Document
       </button>
       <div class="doc-list" id="docList"></div>
+      <button class="delete-all-btn" onclick="deleteAllDocuments()">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        Delete All Documents
+      </button>
     </div>
   </div>
 
@@ -963,10 +1090,6 @@
           <div class="toggle-switch" id="focusModeToggle" onclick="toggleFocusMode()"></div>
         </div>
         <div class="toggle-group">
-          <span class="toggle-label">Typewriter mode</span>
-          <div class="toggle-switch" id="typewriterToggle" onclick="toggleTypewriterMode()"></div>
-        </div>
-        <div class="toggle-group">
           <span class="toggle-label">Show word count</span>
           <div class="toggle-switch active" id="wordCountToggle" onclick="toggleWordCount()"></div>
         </div>
@@ -992,10 +1115,6 @@
         <div class="setting-label">Keyboard Shortcuts</div>
         <div class="shortcuts-list">
           <div class="shortcut-item">
-            <span>Save</span>
-            <div class="shortcut-keys"><span class="shortcut-key">Ctrl</span><span class="shortcut-key">S</span></div>
-          </div>
-          <div class="shortcut-item">
             <span>New document</span>
             <div class="shortcut-keys"><span class="shortcut-key">Ctrl</span><span class="shortcut-key">N</span></div>
           </div>
@@ -1008,14 +1127,25 @@
             <div class="shortcut-keys"><span class="shortcut-key">Ctrl</span><span class="shortcut-key">Shift</span><span class="shortcut-key">F</span></div>
           </div>
           <div class="shortcut-item">
-            <span>Typewriter mode</span>
-            <div class="shortcut-keys"><span class="shortcut-key">Ctrl</span><span class="shortcut-key">Shift</span><span class="shortcut-key">T</span></div>
-          </div>
-          <div class="shortcut-item">
             <span>Close panels</span>
             <div class="shortcut-keys"><span class="shortcut-key">Esc</span></div>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirmation Modal -->
+  <div class="confirm-modal" id="confirmModal">
+    <div class="confirm-box">
+      <div class="confirm-message" id="confirmMessage">Delete this document?</div>
+      <label class="confirm-checkbox" id="confirmCheckbox" style="display: none;">
+        <input type="checkbox" id="confirmCheck" onchange="updateConfirmButton()">
+        <span>I understand this action cannot be undone</span>
+      </label>
+      <div class="confirm-buttons">
+        <button class="confirm-btn cancel" onclick="closeConfirmModal()">Cancel</button>
+        <button class="confirm-btn danger" id="confirmAction" onclick="executeConfirmAction()">Delete</button>
       </div>
     </div>
   </div>
@@ -1110,7 +1240,6 @@
           lineWidth: 700,
           lineHeight: 1.8,
           focusMode: false,
-          typewriterMode: false,
           showWordCount: true,
           goal: 0
         };
@@ -1147,7 +1276,40 @@
     const saveIndicator = document.getElementById('saveIndicator');
     const editorContainer = document.getElementById('editorContainer');
 
-    // Debounce
+    // Auto-save with 2s debounce and 10s max interval
+    let saveTimeout = null;
+    let lastSaveTime = Date.now();
+    let maxIntervalTimeout = null;
+
+    function performSave(content) {
+      docManager.update(docManager.currentId, content);
+      showSaveIndicator();
+      lastSaveTime = Date.now();
+      clearTimeout(maxIntervalTimeout);
+      maxIntervalTimeout = null;
+    }
+
+    function autoSave(content) {
+      // Clear existing debounce timeout
+      clearTimeout(saveTimeout);
+
+      // Set up max interval save (10 seconds since last save)
+      if (!maxIntervalTimeout) {
+        const timeSinceLastSave = Date.now() - lastSaveTime;
+        const remainingTime = Math.max(0, 10000 - timeSinceLastSave);
+        maxIntervalTimeout = setTimeout(() => {
+          clearTimeout(saveTimeout);
+          performSave(editor.value);
+        }, remainingTime);
+      }
+
+      // Set up debounce save (2 seconds after typing stops)
+      saveTimeout = setTimeout(() => {
+        performSave(content);
+      }, 2000);
+    }
+
+    // Debounce helper for other uses
     function debounce(fn, delay) {
       let timeout;
       return (...args) => {
@@ -1155,12 +1317,6 @@
         timeout = setTimeout(() => fn(...args), delay);
       };
     }
-
-    // Auto-save
-    const autoSave = debounce((content) => {
-      docManager.update(docManager.currentId, content);
-      showSaveIndicator();
-    }, 1000);
 
     function showSaveIndicator() {
       saveIndicator.classList.add('visible');
@@ -1201,34 +1357,10 @@
       updateWordCount();
     });
 
-    editor.addEventListener('keyup', () => {
-      if (settings.get('typewriterMode')) {
-        scrollToCurrentLine();
-      }
-    });
-
-    editor.addEventListener('click', () => {
-      if (settings.get('typewriterMode')) {
-        scrollToCurrentLine();
-      }
-    });
-
     docTitle.addEventListener('input', debounce(() => {
       docManager.updateTitle(docManager.currentId, docTitle.value);
       renderDocList();
     }, 500));
-
-    // Typewriter mode
-    function scrollToCurrentLine() {
-      const lineHeight = parseInt(getComputedStyle(editor).lineHeight);
-      const cursorLine = editor.value.substr(0, editor.selectionStart).split('\n').length;
-      const containerHeight = editorContainer.clientHeight;
-      const targetScroll = (cursorLine * lineHeight) - (containerHeight / 2);
-      editorContainer.scrollTo({
-        top: Math.max(0, targetScroll),
-        behavior: 'smooth'
-      });
-    }
 
     // Panel controls
     function toggleDocsPanel() {
@@ -1262,7 +1394,19 @@
     }
 
     // Document management
+    function saveCurrentDocument() {
+      // Save current document content before switching
+      if (docManager.currentId) {
+        docManager.update(docManager.currentId, editor.value);
+        clearTimeout(saveTimeout);
+        clearTimeout(maxIntervalTimeout);
+        maxIntervalTimeout = null;
+        lastSaveTime = Date.now();
+      }
+    }
+
     function createNewDocument() {
+      saveCurrentDocument();
       const doc = docManager.create('Untitled');
       loadDocument(doc.id);
       renderDocList();
@@ -1270,6 +1414,10 @@
     }
 
     function loadDocument(id) {
+      // Don't save when loading the same document
+      if (id !== docManager.currentId) {
+        saveCurrentDocument();
+      }
       docManager.setCurrent(id);
       const doc = docManager.getCurrent();
       if (doc) {
@@ -1283,12 +1431,72 @@
 
     function deleteDocument(id, event) {
       event.stopPropagation();
-      if (confirm('Delete this document?')) {
+      showConfirmModal('Delete this document?', false, () => {
         if (docManager.delete(id)) {
           loadDocument(docManager.currentId);
           renderDocList();
         }
+      });
+    }
+
+    function deleteAllDocuments() {
+      showConfirmModal('Delete ALL documents? This cannot be undone.', true, () => {
+        // Create one new document first
+        const newDoc = {
+          id: Date.now().toString(),
+          title: 'Untitled',
+          content: '',
+          created: new Date().toISOString(),
+          modified: new Date().toISOString()
+        };
+        docManager.documents = [newDoc];
+        docManager.currentId = newDoc.id;
+        docManager.save();
+        loadDocument(newDoc.id);
+        renderDocList();
+        closePanels();
+      });
+    }
+
+    // Confirmation modal
+    let confirmCallback = null;
+
+    function showConfirmModal(message, requireCheckbox, callback) {
+      confirmCallback = callback;
+      document.getElementById('confirmMessage').textContent = message;
+      const modal = document.getElementById('confirmModal');
+      const actionBtn = document.getElementById('confirmAction');
+      const checkboxContainer = document.getElementById('confirmCheckbox');
+      const checkbox = document.getElementById('confirmCheck');
+
+      if (requireCheckbox) {
+        checkboxContainer.style.display = 'flex';
+        checkbox.checked = false;
+        actionBtn.disabled = true;
+      } else {
+        checkboxContainer.style.display = 'none';
+        actionBtn.disabled = false;
       }
+
+      modal.classList.add('visible');
+    }
+
+    function closeConfirmModal() {
+      document.getElementById('confirmModal').classList.remove('visible');
+      confirmCallback = null;
+    }
+
+    function executeConfirmAction() {
+      if (confirmCallback) {
+        confirmCallback();
+      }
+      closeConfirmModal();
+    }
+
+    function updateConfirmButton() {
+      const checkbox = document.getElementById('confirmCheck');
+      const actionBtn = document.getElementById('confirmAction');
+      actionBtn.disabled = !checkbox.checked;
     }
 
     function renderDocList() {
@@ -1386,17 +1594,6 @@
       document.getElementById('focusModeToggle').classList.toggle('active', enabled);
     }
 
-    function toggleTypewriterMode() {
-      const enabled = !settings.get('typewriterMode');
-      settings.set('typewriterMode', enabled);
-      editorContainer.classList.toggle('typewriter-mode', enabled);
-      document.getElementById('typewriterBtn').classList.toggle('active', enabled);
-      document.getElementById('typewriterToggle').classList.toggle('active', enabled);
-      if (enabled) {
-        scrollToCurrentLine();
-      }
-    }
-
     function toggleWordCount() {
       const enabled = !settings.get('showWordCount');
       settings.set('showWordCount', enabled);
@@ -1472,11 +1669,6 @@
         toggleFocusMode();
       }
 
-      if (modKey && e.shiftKey && e.key === 'T') {
-        e.preventDefault();
-        toggleTypewriterMode();
-      }
-
       if (e.key === 'Escape') {
         closePanels();
         if (document.fullscreenElement) {
@@ -1525,12 +1717,6 @@
         document.getElementById('focusModeToggle').classList.add('active');
       }
 
-      if (settings.get('typewriterMode')) {
-        editorContainer.classList.add('typewriter-mode');
-        document.getElementById('typewriterBtn').classList.add('active');
-        document.getElementById('typewriterToggle').classList.add('active');
-      }
-
       if (!settings.get('showWordCount')) {
         document.getElementById('footer').classList.add('hidden');
         document.getElementById('wordCountToggle').classList.remove('active');
@@ -1563,6 +1749,11 @@
         e.preventDefault();
         toggleTheme();
       }
+    });
+
+    // Save before browser closes
+    window.addEventListener('beforeunload', () => {
+      saveCurrentDocument();
     });
 
     init();
