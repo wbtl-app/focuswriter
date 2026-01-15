@@ -12,8 +12,8 @@
       --text: #1d1d1f;
       --text-secondary: #6e6e73;
       --text-dim: #c0c0c0;
-      --accent: #9b7bd4;
-      --accent-hover: #8a6ac3;
+      --accent: #0071e3;
+      --accent-hover: #0077ed;
       --border: #d2d2d7;
       --toggle-bg: #e5e5e5;
       --toggle-knob: #ffffff;
@@ -24,36 +24,54 @@
       --editor-bg: #ffffff;
     }
 
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #000000;
+        --bg-secondary: #1c1c1e;
+        --text: #f5f5f7;
+        --text-secondary: #98989d;
+        --text-dim: #4a4a4a;
+        --accent: #2997ff;
+        --accent-hover: #40a9ff;
+        --border: #38383a;
+        --toggle-bg: #3a3a3c;
+        --toggle-knob: #ffffff;
+        --panel-bg: #1c1c1e;
+        --panel-shadow: rgba(0,0,0,0.3);
+        --editor-bg: #000000;
+      }
+    }
+
     [data-theme="dark"] {
-      --bg: #1a1a1a;
+      --bg: #000000;
       --bg-secondary: #1c1c1e;
-      --text: #e0e0e0;
+      --text: #f5f5f7;
       --text-secondary: #98989d;
       --text-dim: #4a4a4a;
-      --accent: #9b7bd4;
-      --accent-hover: #b08ee6;
+      --accent: #2997ff;
+      --accent-hover: #40a9ff;
       --border: #38383a;
       --toggle-bg: #3a3a3c;
       --toggle-knob: #ffffff;
-      --panel-bg: #252525;
+      --panel-bg: #1c1c1e;
       --panel-shadow: rgba(0,0,0,0.3);
-      --editor-bg: #1a1a1a;
+      --editor-bg: #000000;
     }
 
-    [data-theme="sepia"] {
-      --bg: #f5f0e6;
-      --bg-secondary: #ebe4d6;
-      --text: #5c4b37;
-      --text-secondary: #7a6952;
-      --text-dim: #c4b8a5;
-      --accent: #8b6914;
-      --accent-hover: #a47d1c;
-      --border: #d4c9b8;
-      --toggle-bg: #d4c9b8;
+    [data-theme="light"] {
+      --bg: #ffffff;
+      --bg-secondary: #f5f5f7;
+      --text: #1d1d1f;
+      --text-secondary: #6e6e73;
+      --text-dim: #c0c0c0;
+      --accent: #0071e3;
+      --accent-hover: #0077ed;
+      --border: #d2d2d7;
+      --toggle-bg: #e5e5e5;
       --toggle-knob: #ffffff;
-      --panel-bg: #f5f0e6;
-      --panel-shadow: rgba(92,75,55,0.1);
-      --editor-bg: #f5f0e6;
+      --panel-bg: #ffffff;
+      --panel-shadow: rgba(0,0,0,0.1);
+      --editor-bg: #ffffff;
     }
 
     * {
@@ -74,12 +92,14 @@
     }
 
     body.fullscreen header,
+    body.fullscreen .options-bar,
     body.fullscreen .footer {
       opacity: 0;
       pointer-events: none;
     }
 
     body.fullscreen:hover header,
+    body.fullscreen:hover .options-bar,
     body.fullscreen:hover .footer {
       opacity: 1;
       pointer-events: auto;
@@ -89,7 +109,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0.75rem 1.5rem;
+      padding: 1rem 1.5rem;
       background: var(--bg-secondary);
       border-bottom: 1px solid var(--border);
       transition: opacity 0.3s ease;
@@ -103,30 +123,118 @@
     }
 
     .tool-icon {
-      width: 36px;
-      height: 36px;
-      border-radius: 8px;
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
       background: linear-gradient(135deg, var(--tool-gradient-start), var(--tool-gradient-end));
-      cursor: pointer;
     }
 
     .tool-icon svg {
-      width: 20px;
-      height: 20px;
+      width: 24px;
+      height: 24px;
     }
 
     .tool-name {
-      font-size: 1.1rem;
+      font-size: 1.25rem;
       font-weight: 600;
     }
 
-    .header-center {
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .back-link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.2s ease;
+    }
+
+    .back-link:hover {
+      color: var(--accent);
+    }
+
+    /* Theme Toggle */
+    .theme-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .theme-toggle svg {
+      width: 16px;
+      height: 16px;
+      stroke: var(--text-secondary);
+      fill: none;
+      stroke-width: 2;
+    }
+
+    .theme-toggle-switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      background: var(--toggle-bg);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .theme-toggle-switch::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 20px;
+      height: 20px;
+      background: var(--toggle-knob);
+      border-radius: 50%;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+      transition: transform 0.2s ease;
+    }
+
+    [data-theme="dark"] .theme-toggle-switch::after,
+    :root:not([data-theme="light"]) .theme-toggle-switch::after {
+      transform: translateX(20px);
+    }
+
+    @media (prefers-color-scheme: light) {
+      :root:not([data-theme="dark"]) .theme-toggle-switch::after {
+        transform: translateX(0);
+      }
+    }
+
+    /* Options Bar */
+    .options-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 1.5rem;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      transition: opacity 0.3s ease;
+    }
+
+    .options-left {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .options-center {
       flex: 1;
       display: flex;
       justify-content: center;
+    }
+
+    .options-right {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
     }
 
     .doc-title {
@@ -143,21 +251,15 @@
     }
 
     .doc-title:hover {
-      background: var(--bg);
+      background: var(--bg-secondary);
     }
 
     .doc-title:focus {
       outline: none;
-      background: var(--bg);
+      background: var(--bg-secondary);
     }
 
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
-    .header-btn {
+    .options-btn {
       background: transparent;
       border: none;
       color: var(--text-secondary);
@@ -170,16 +272,16 @@
       transition: all 0.2s ease;
     }
 
-    .header-btn:hover {
-      background: var(--bg);
+    .options-btn:hover {
+      background: var(--bg-secondary);
       color: var(--text);
     }
 
-    .header-btn.active {
+    .options-btn.active {
       color: var(--accent);
     }
 
-    .header-btn svg {
+    .options-btn svg {
       width: 20px;
       height: 20px;
       stroke: currentColor;
@@ -198,17 +300,6 @@
 
     .save-indicator.visible {
       opacity: 1;
-    }
-
-    .back-link {
-      color: var(--text-secondary);
-      text-decoration: none;
-      font-size: 0.85rem;
-      transition: color 0.2s ease;
-    }
-
-    .back-link:hover {
-      color: var(--accent);
     }
 
     main {
@@ -510,33 +601,6 @@
       margin-bottom: 0.5rem;
     }
 
-    .theme-options {
-      display: flex;
-      gap: 0.5rem;
-    }
-
-    .theme-btn {
-      flex: 1;
-      padding: 0.5rem;
-      border: 2px solid var(--border);
-      border-radius: 8px;
-      background: transparent;
-      cursor: pointer;
-      font-size: 0.85rem;
-      color: var(--text);
-      transition: all 0.2s ease;
-    }
-
-    .theme-btn:hover {
-      border-color: var(--accent);
-    }
-
-    .theme-btn.active {
-      border-color: var(--accent);
-      background: var(--accent);
-      color: white;
-    }
-
     .font-options {
       display: flex;
       flex-direction: column;
@@ -710,12 +774,20 @@
 
     /* Mobile */
     @media (max-width: 640px) {
-      header {
-        padding: 0.5rem 1rem;
+      .tool-name {
+        font-size: 1.1rem;
       }
 
-      .tool-name {
-        display: none;
+      .header-right {
+        gap: 1rem;
+      }
+
+      .back-link {
+        font-size: 0.8rem;
+      }
+
+      .options-bar {
+        padding: 0.5rem 1rem;
       }
 
       .doc-title {
@@ -747,7 +819,7 @@
 <body>
   <header>
     <div class="header-left">
-      <div class="tool-icon" onclick="toggleDocsPanel()" title="Documents">
+      <div class="tool-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 19l7-7 3 3-7 7-3-3z"/>
           <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/>
@@ -757,26 +829,46 @@
       </div>
       <div class="tool-name">Focus Writer</div>
     </div>
-    <div class="header-center">
-      <input type="text" class="doc-title" id="docTitle" value="Untitled" placeholder="Document title">
-    </div>
     <div class="header-right">
-      <span class="save-indicator" id="saveIndicator">Saved</span>
-      <button class="header-btn" id="focusModeBtn" onclick="toggleFocusMode()" title="Focus mode (Ctrl+Shift+F)">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-      </button>
-      <button class="header-btn" id="typewriterBtn" onclick="toggleTypewriterMode()" title="Typewriter mode (Ctrl+Shift+T)">
-        <svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
-      </button>
-      <button class="header-btn" onclick="toggleFullscreen()" title="Fullscreen (F11)">
-        <svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
-      </button>
-      <button class="header-btn" onclick="toggleSettingsPanel()" title="Settings">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-      </button>
       <a href="https://wbtl.app" class="back-link">wbtl.app</a>
+      <div class="theme-toggle">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"/>
+          <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+        </svg>
+        <div class="theme-toggle-switch" onclick="toggleTheme()" role="button" tabindex="0" aria-label="Toggle dark mode"></div>
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+      </div>
     </div>
   </header>
+
+  <div class="options-bar">
+    <div class="options-left">
+      <button class="options-btn" onclick="toggleDocsPanel()" title="Documents">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      </button>
+    </div>
+    <div class="options-center">
+      <input type="text" class="doc-title" id="docTitle" value="Untitled" placeholder="Document title">
+      <span class="save-indicator" id="saveIndicator">Saved</span>
+    </div>
+    <div class="options-right">
+      <button class="options-btn" id="focusModeBtn" onclick="toggleFocusMode()" title="Focus mode (Ctrl+Shift+F)">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      </button>
+      <button class="options-btn" id="typewriterBtn" onclick="toggleTypewriterMode()" title="Typewriter mode (Ctrl+Shift+T)">
+        <svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+      </button>
+      <button class="options-btn" onclick="toggleFullscreen()" title="Fullscreen (F11)">
+        <svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
+      </button>
+      <button class="options-btn" onclick="toggleSettingsPanel()" title="Settings">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+    </div>
+  </div>
 
   <main>
     <div class="editor-container" id="editorContainer">
@@ -832,21 +924,11 @@
     </div>
     <div class="panel-content">
       <div class="setting-group">
-        <div class="setting-label">Theme</div>
-        <div class="theme-options">
-          <button class="theme-btn" data-theme="light" onclick="setTheme('light')">Light</button>
-          <button class="theme-btn" data-theme="dark" onclick="setTheme('dark')">Dark</button>
-          <button class="theme-btn" data-theme="sepia" onclick="setTheme('sepia')">Sepia</button>
-        </div>
-      </div>
-
-      <div class="setting-group">
         <div class="setting-label">Font</div>
         <div class="font-options">
-          <button class="font-btn" data-font="Georgia, serif" onclick="setFont(this)" style="font-family: Georgia, serif;">Georgia</button>
-          <button class="font-btn" data-font="'Palatino Linotype', 'Book Antiqua', Palatino, serif" onclick="setFont(this)" style="font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;">Palatino</button>
-          <button class="font-btn" data-font="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" onclick="setFont(this)" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">System</button>
-          <button class="font-btn" data-font="'Courier New', Courier, monospace" onclick="setFont(this)" style="font-family: 'Courier New', Courier, monospace;">Monospace</button>
+          <button class="font-btn" data-font="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" onclick="setFont(this)" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Sans-serif</button>
+          <button class="font-btn" data-font="Georgia, 'Times New Roman', serif" onclick="setFont(this)" style="font-family: Georgia, 'Times New Roman', serif;">Serif</button>
+          <button class="font-btn" data-font="'Courier New', Consolas, monospace" onclick="setFont(this)" style="font-family: 'Courier New', Consolas, monospace;">Monospace</button>
         </div>
       </div>
 
@@ -1023,8 +1105,7 @@
     class SettingsManager {
       constructor() {
         this.defaults = {
-          theme: 'light',
-          font: 'Georgia, serif',
+          font: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
           fontSize: 18,
           lineWidth: 700,
           lineHeight: 1.8,
@@ -1231,17 +1312,41 @@
     }
 
     // Theme
-    function setTheme(theme) {
-      document.documentElement.setAttribute('data-theme', theme);
-      settings.set('theme', theme);
-      updateThemeButtons();
+    function getSystemTheme() {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     }
 
-    function updateThemeButtons() {
-      const theme = settings.get('theme');
-      document.querySelectorAll('.theme-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.theme === theme);
-      });
+    function getStoredTheme() {
+      return localStorage.getItem('wbtl-theme');
+    }
+
+    function setTheme(theme) {
+      if (theme === 'system') {
+        document.documentElement.removeAttribute('data-theme');
+        localStorage.removeItem('wbtl-theme');
+      } else {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('wbtl-theme', theme);
+      }
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme');
+      const system = getSystemTheme();
+
+      if (!current) {
+        // Currently using system, switch to opposite
+        setTheme(system === 'dark' ? 'light' : 'dark');
+      } else {
+        // Currently using manual, check if it matches system
+        if (current === system) {
+          // Matches system, switch to opposite
+          setTheme(current === 'dark' ? 'light' : 'dark');
+        } else {
+          // Doesn't match system, go back to system
+          setTheme('system');
+        }
+      }
     }
 
     // Font
@@ -1382,8 +1487,11 @@
 
     // Apply saved settings
     function applySettings() {
-      // Theme
-      setTheme(settings.get('theme'));
+      // Theme - initialize from localStorage
+      const storedTheme = getStoredTheme();
+      if (storedTheme) {
+        setTheme(storedTheme);
+      }
 
       // Font
       const font = settings.get('font');
@@ -1448,6 +1556,14 @@
       renderDocList();
       editor.focus();
     }
+
+    // Handle keyboard for theme toggle
+    document.querySelector('.theme-toggle-switch').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggleTheme();
+      }
+    });
 
     init();
   </script>
